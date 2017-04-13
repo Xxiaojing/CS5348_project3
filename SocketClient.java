@@ -22,7 +22,6 @@ public class SocketClient
 			
 			// Check Validity of the User's name
 			if (valid.equals("valid")){
-//				sc.close();
 				break;
 			}else{
 				System.out.print("Existing user name, enter a new name: ");		// Existing user, enter again
@@ -119,7 +118,6 @@ public class SocketClient
 	public void sendServer(String choice){
 		String name 	= "\n";
 		String message 	= "\n";
-//		Scanner sc = new Scanner(System.in);
 		int n = Integer.parseInt(choice);
 		
 		if ( n != 1 && n != 2 && n != 6){
