@@ -47,7 +47,7 @@ public class ClientWorker implements Runnable {
 
                 } else if (line.equals("2")) {
 
-                    checkAllConnectedUsers(line);
+                    checkAllConnectedUsers(line, null);
 
                 } else if (line.equals("3")) {
 
@@ -68,7 +68,8 @@ public class ClientWorker implements Runnable {
 
                 } else if (line.equals("4")) {
 
-                    checkAllConnectedUsers(line);
+                    String message = in.readLine();
+                    checkAllConnectedUsers(line, message);
                     System.out.println(newUser.name + " posts a message for all currently connected users.");
                     out.println("Message posted to all currently connected users.");
 
@@ -216,11 +217,12 @@ public class ClientWorker implements Runnable {
     public void checkAllKnownUsers (String choice, String message) {
 
         int i = 0;
+		String nameList = null;
         while(i < userList.size()) {
 
             if (choice.equals("1")) {
 
-                out.println(userList.get(i).name);
+                nameList =+ userList.get(i).name + "\n";
 
             } else {
 
@@ -233,6 +235,7 @@ public class ClientWorker implements Runnable {
             i++;
 
         }
+		out.println(nameList);
 
         if(choice.equals("1")) {
 
@@ -248,7 +251,7 @@ public class ClientWorker implements Runnable {
 
     }
 
-    public void checkAllConnectedUsers(String choice) {
+    public void checkAllConnectedUsers(String choice, String message) {
 
         int i = 0;
         while(i < userList.size()) {
@@ -260,20 +263,11 @@ public class ClientWorker implements Runnable {
                     out.println(userList.get(i).name);
 
                 } else {
-
-                    try {
-
-                        String message = in.readLine();
+                    
                         String time = getTime();
                         String sendMessage = newUser.name + "\n" + time + "\n" + message;
                         storeMessage(coUser, sendMessage);
 
-                    } catch (IOException e) {
-
-                        System.out.println("Read failed");
-                        System.exit(-1);
-
-                    }
                 }
 
             }
