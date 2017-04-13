@@ -1,7 +1,5 @@
-// By Greg Ozbirn, University of Texas at Dallas
-// Adapted from example at Sun website: 
-// http://java.sun.com/developer/onlineTraining/Programming/BasicJava2/socket.html
-// 11/07/07
+// By Linh Hoang, University of Texas at Dallas
+// April, 2017
 
 import java.io.*;
 import java.util.Scanner;
@@ -9,55 +7,75 @@ import java.net.*;
 
 public class SocketClient
 {
-	Socket socket = null;
-	PrintWriter out = null;
-	BufferedReader in = null;
-
+	Socket socket 		= null;
+	PrintWriter out 	= null;
+	BufferedReader in 	= null;
+	Scanner sc 			= new Scanner(System.in);
 	public void communicate()
 	{
-		Scanner sc = new Scanner(System.in);
+		String name= "";
 		System.out.print("Enter your name : ");		// Enter the name 
-		String name = sc.nextLine();
-		out.println(name);	// Send user name to Server
-
-		String choice ="";
-		while (!choice.equals("7")){
-			displayChoice();		// Display menu
-			choice = sc.nextLine();	// Take the user's choice
-			switch (choice){
-			case "1":
-				System.out.println("Known Users:");
-				sendServer(choice);
-				displayInfo(choice);
+		while(true){			
+			name 			= sc.nextLine();		// Get User's name
+			out.println(name);						// Send user name to Server to check
+			String valid 	= readServer();			// Receive validity string from Server
+			
+			// Check Validity of the User's name
+			if (valid.equals("valid")){
+//				sc.close();
 				break;
-			case "2":
-				System.out.println("Connected Users:");
-				sendServer(choice);
-				displayInfo(choice);
-				break;
-			case "3":
-				sendServer(choice);
-				System.out.println(readServer());
-				break;
-			case "4":
-				sendServer(choice);
-				System.out.println(readServer());
-				break;	
-			case "5":
-				sendServer(choice);
-				System.out.println(readServer());
-				break;
-			case "6":
-				System.out.println("Your Messages:");
-				sendServer(choice);
-				displayInfo(choice);
-				break;
-			case "7":
-				out.println(choice);
-			}	
+			}else{
+				System.out.print("Existing user name, enter a new name: ");		// Existing user, enter again
+			}				
 		}
-
+		
+		String choice ="";		
+		outerloop:
+		while(true){
+			displayChoice();			// Display menu
+			innerloop:
+			while(true){
+				choice = sc.nextLine();	// Take the user's choice			
+				switch (choice){
+				case "1":
+					System.out.println("Known Users:");
+					sendServer(choice);
+					displayInfo(choice);
+					break innerloop;
+				case "2":
+					System.out.println("Connected Users:");
+					sendServer(choice);
+					displayInfo(choice);
+					break innerloop;
+				case "3":
+					sendServer(choice);
+					System.out.println(readServer());
+					break innerloop;
+				case "4":
+					sendServer(choice);
+					System.out.println(readServer());
+					break innerloop;	
+				case "5":
+					sendServer(choice);
+					System.out.println(readServer());
+					break innerloop;
+				case "6":
+					System.out.println("Your Messages:");
+					sendServer(choice);
+					displayInfo(choice);
+					break innerloop;
+				case "7":
+					out.println(choice);
+					break outerloop;
+				default:
+					System.out.print("Invalid choice (only 1~7), Enter Your Choice: ");
+				}	
+			}
+		}
+		sc.close();
 	}
+	
+	// Read a single line from Server
 	public String readServer(){
 		try {
 			return (in.readLine());
@@ -65,23 +83,43 @@ public class SocketClient
 			return null;
 		}	
 	}
-
+	
+	// Read multiple lines from Server and print out formatted string
 	public void displayInfo(String choice){
 		String message;	
 		int i = 0;
 		while((message = readServer())!= null){
 			if (!message.equals("stop")){
-				System.out.println("\t"+(i+1)+". "+message);	
+				if (!choice.equals("6"))
+					System.out.println("\t"+(i+1)+". "+message);
+				else{
+					String name 	= message;
+					String date 	= readServer();
+					String inbox	= readServer();
+					System.out.println("\t"+(i+1)+". From "+name+", "+date+", "+inbox);
+				}				
 			}else{
 				break;
 			}
+			i++;
 		}	
+//		String message;	
+//		int i = 0;
+//		while((message = readServer())!= null){
+//			if (!message.equals("stop")){
+//					System.out.println("\t"+(i+1)+". "+message);			
+//			}else{
+//				break;
+//			}
+//			i++;
+//		}
 	}
 
+	// Send information to Server
 	public void sendServer(String choice){
 		String name 	= "\n";
 		String message 	= "\n";
-		Scanner sc = new Scanner(System.in);
+//		Scanner sc = new Scanner(System.in);
 		int n = Integer.parseInt(choice);
 		
 		if ( n != 1 && n != 2 && n != 6){
@@ -90,13 +128,23 @@ public class SocketClient
 				name = name+sc.nextLine();
 			}
 			System.out.print("Enter a message: ");
-			message = message+sc.nextLine();
+			String st ="";
+			while(true){
+				st = sc.nextLine();				
+				if (st.length() <= 10){
+					break;
+				}else{
+					System.out.print("Your message is too long, enter a message again: ");
+				}
+			}
+			message = message+st;
 			out.println(choice+name+message);
 		}else{
 			out.println(choice);
 		}
 	}
-
+	
+	
 	public void displayChoice(){
 		System.out.print("\n\n1. Display the names of all known users.\n"
 				+ "2. Display the names of all currently connected users.\n"
