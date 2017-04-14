@@ -129,7 +129,7 @@ public class SocketClient
 			String st ="";
 			while(true){
 				st = sc.nextLine();				
-				if (st.length() <= 10){
+				if (st.length() <= 80){
 					break;
 				}else{
 					System.out.print("Your message is too long, enter a message again: ");
