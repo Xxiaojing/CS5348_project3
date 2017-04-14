@@ -203,7 +203,7 @@ public class ClientWorker implements Runnable {
 
     public synchronized static boolean storeMessage(User user, String message, PrintWriter out) {
 
-        if (userList.size() < 10) {
+        if (user.messageList.size() < 10) {
 
             user.setMessage(message);
             return true;
