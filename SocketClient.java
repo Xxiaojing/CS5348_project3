@@ -77,7 +77,9 @@ public class SocketClient
 	// Read a single line from Server
 	public String readServer(){
 		try {
-			return (in.readLine());
+			String st = in.readLine();
+//			System.out.println("Incomming data: "+st);
+			return (st);
 		} catch (NumberFormatException | IOException e) {
 			return null;
 		}	
@@ -116,14 +118,14 @@ public class SocketClient
 
 	// Send information to Server
 	public void sendServer(String choice){
-		String name 	= "\n";
-		String message 	= "\n";
+		String name 	= "";
+		String message 	= "";
 		int n = Integer.parseInt(choice);
 		
 		if ( n != 1 && n != 2 && n != 6){
 			if (n==3){
 				System.out.print("Enter recipient's name: ");
-				name = name+sc.nextLine();
+				name = sc.nextLine()+"\n";
 			}
 			System.out.print("Enter a message: ");
 			String st ="";
@@ -135,8 +137,10 @@ public class SocketClient
 					System.out.print("Your message is too long, enter a message again: ");
 				}
 			}
-			message = message+st;
-			out.println(choice+name+message);
+			message = choice+"\n"+name+st;
+//			System.out.println("Message sent: "+message);
+			out.println(message);
+			
 		}else{
 			out.println(choice);
 		}
