@@ -25,108 +25,108 @@ public class Client
             //Send data over socket
             out.println(name);
 
-                try
-                {
-                    String line = in.readLine();
-                    if(line.equals("valid")) {
+            try
+            {
+                String line = in.readLine();
+                if(line.equals("valid")) {
 
-                        break;
+                    break;
 
-                    } else if(line.equals("full")) {
+                } else if(line.equals("full")) {
 
-                        System.out.println("The server is full and can't take client any more.");
-                        System.exit(-1);
+                    System.out.println("The server is full and can't take client any more.");
+                    System.exit(-1);
 
-                    } else {
+                } else {
 
-                        System.out.println("The name you chose has been used by others. Please try a different one.");
-                        System.out.println("Enter a different name: ");
-
-                    }
+                    System.out.println("The name you chose has been used by others. Please try a different one.");
+                    System.out.println("Enter a different name: ");
 
                 }
-                catch (IOException e)
-                {
-                    System.out.println("Read failed");
-                    System.exit(1);
-                }
+
+            }
+            catch (IOException e)
+            {
+                System.out.println("Read failed");
+                System.exit(1);
+            }
 
         }
 
-      while (true) {
+        while (true) {
 
-        String choice = printMenu(sc);
-        int option = Integer.parseInt(choice);
-        if(!(option == 1 || option == 2 || option == 3 || option == 4
-        || option == 5 || option == 6 || option == 7)) {
-            System.out.println("Bad choice! Try again");
-            continue;
-          }
+            String choice = printMenu(sc);
 
-        requestInfo(choice, sc);
+            if(!(choice.equals("1")||choice.equals("2")||choice.equals("3")||
+                    choice.equals("4")||choice.equals("5")||choice.equals("6")||choice.equals("7"))) {
+                System.out.println("Bad choice!");
+                continue;
+            }
 
-        if(choice.equals("7")) {
+            requestInfo(choice, sc);
 
-            break;
+            if(choice.equals("7")) {
 
-        } else {
+                break;
 
-            try
-            {
-                String line;
-                int i = 1;
-                while ((line = in.readLine()) != null) {
+            } else {
 
-                    if(!line.equals("stop")) {
+                try
+                {
+                    String line;
+                    int i = 1;
+                    while ((line = in.readLine()) != null) {
 
-                        if (choice.equals("3") | choice.equals("4") | choice.equals("5")) {
+                        if(!line.equals("stop")) {
 
-                            if(line.equals("full")) {
-                                System.out.println("The server is full, and the user talking to cannot be connected.");
-                                break;
-                            }
-                            System.out.println(line);
+                            if (choice.equals("3") | choice.equals("4") | choice.equals("5")) {
 
-                        } else if (choice.equals("6")) {
+                                if(line.equals("full")) {
+                                    System.out.println("The server is full, and the user talking to cannot be connected.");
+                                    break;
+                                }
+                                System.out.println(line);
 
-                            if(line.equals("empty")) {
+                            } else if (choice.equals("6")) {
 
-                                System.out.println("Message is empty");
+                                if(line.equals("empty")) {
+
+                                    System.out.println("Message is empty");
+
+                                } else {
+
+                                    String time = in.readLine();
+                                    String message = in.readLine();
+
+                                    System.out.println("From " + line + ", " + time + ", " + message);
+
+                                }
 
                             } else {
 
-                                String time = in.readLine();
-                                String message = in.readLine();
-
-                                System.out.println("From " + line + ", " + time + ", " + message);
+                                System.out.println( i + ". " + line + "\n");
+                                i++;
 
                             }
 
                         } else {
 
-                            System.out.println( i + ". " + line + "\n");
-                            i++;
+                            break;
 
                         }
-
-                    } else {
-
-                        break;
 
                     }
 
                 }
+                catch (IOException e) {
 
+                    System.out.println("Read failed");
+                    System.exit(1);
+
+                }
             }
-            catch (IOException e) {
 
-                System.out.println("Read failed");
-                System.exit(1);
-
-            }
         }
-
-      }
 
     }
 
@@ -174,12 +174,24 @@ public class Client
 
             System.out.println("Enter a message: ");
             String message = sc.nextLine();
+            if(message.length() > length) {
+
+                System.out.println("The message is too long and has been trimmed to standard.");
+                message = message.substring(0, length);
+
+            }
             choice = choice + "\n" + message;
 
         } else if(choice.equals("5")) {
 
             System.out.println("Enter a message: ");
             String message = sc.nextLine();
+            if(message.length() > length) {
+
+                System.out.println("The message is too long and has been trimmed to standard.");
+                message = message.substring(0, length);
+
+            }
             choice = choice + "\n" + message;
 
         } else if(choice.equals("6")) {

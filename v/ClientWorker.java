@@ -70,11 +70,11 @@ public class ClientWorker implements Runnable {
 
                     } else {
 
-                        out.println(coUser + "'s message is full and can't be saved");
+                        out.println(coUser.name + "'s message is full and can't be saved");
 
                     }
 
-                    System.out.println(newUser.name + " posts a message for " + coUser.name + ".");
+                    System.out.println(getTime() + ", " + newUser.name + " posts a message for " + coUser.name + ".");
 
                 } else if (line.equals("4")) {
 
@@ -105,12 +105,12 @@ public class ClientWorker implements Runnable {
 
                     }
 
-                    System.out.println(newUser.name + " gets messages.");
+                    System.out.println(getTime() + ", " + newUser.name + " gets messages.");
 
                 } else if (line.equals("7")) {
 
                     newUser.setConnected(false);
-                    System.out.println(newUser.name + " exits.");
+                    System.out.println(getTime() + ", " + newUser.name + " exits.");
                     exitClient();
                     break;
 
@@ -181,7 +181,7 @@ public class ClientWorker implements Runnable {
 
 
     public static String getTime(){
-        DateFormat df = new SimpleDateFormat("MM/dd/yy HH:mm a");
+        DateFormat df = new SimpleDateFormat("MM/dd/yy H:mm a");
         Date dateobj = new Date();
         String time = df.format(dateobj);
         return time;
@@ -279,11 +279,11 @@ public class ClientWorker implements Runnable {
 
         if(choice.equals("1")) {
 
-            System.out.println(newUser.name + " displays all known users.");
+            System.out.println(getTime() + ", " + newUser.name + " displays all known users.");
 
         } else {
 
-            System.out.println(newUser.name + " posts a message for all known users.");
+            System.out.println(getTime() + ", " + newUser.name + " posts a message for all known users.");
             out.println("Message posted to all known users.");
 
         }
@@ -332,7 +332,7 @@ public class ClientWorker implements Runnable {
 
         } else {
 
-            System.out.println(newUser.name + " posts a message for all currently connected users.");
+            System.out.println(getTime() + ", " + newUser.name + " posts a message for all currently connected users.");
             out.println("Message posted to all currently connected users.");
 
         }
