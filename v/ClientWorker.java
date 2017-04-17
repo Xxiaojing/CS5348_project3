@@ -102,11 +102,7 @@ public class ClientWorker implements Runnable {
                     break;
 
                 }
-
-                int i = 0;
-                while (i < userList.size()) {
-                    System.out.println("name is " + userList.get(i++).name);
-                }
+                
                 out.println("stop");
 
             }
@@ -192,7 +188,7 @@ public class ClientWorker implements Runnable {
     public synchronized static boolean addUser(User currentUser, PrintWriter out) {
 
         boolean added = false;
-        if (userList.size() < 2) {
+        if (userList.size() < 100) {
 
             userList.add(currentUser);
             added = true;
@@ -210,7 +206,7 @@ public class ClientWorker implements Runnable {
 //    if it is full, send a message back to the client
     public synchronized static boolean storeMessage(User user, String message, PrintWriter out) {
 
-        if (user.messageList.size() < 2) {
+        if (user.messageList.size() < 10) {
 
             user.setMessage(message);
             return true;
