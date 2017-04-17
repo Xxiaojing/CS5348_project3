@@ -1,0 +1,21 @@
+     The summary section should discuss your project experience.  You should discuss how you approached the project, including anything difficult or interesting, what was learned, and the end result.   This should be at least 1 page in length.
+     This project may be performed alone or in a team of 2 people.  In the case of a team, the work should be performed collaboratively with equal participation or divided evenly.  The summary should include discussion of what each team member did.  Each team member should be prepared to explain the code if asked to do so.  
+
+Project experience
+This project utilizes Sockets for communication between processes. The server and client sockets are made to demonstrate a message posting system. The server maintains messages posted by clients and helps clients to communicate between each other and the client can retrieve and view messages from the server. To approach the project, we made several steps.
+First, we set up the basic framework for the project based on the example given so that the server accept clients and get connection to clients and communicate between each other. The server will run on a port which is got from the command line. Then the server will listen on that port and wait for connection from client. Client will get the hostname and port the server is running on from the command line. 
+Second, we discussed about the project requirements and what data structure we should use to store messages for clients.
+Third, we added the basic menu functions into our code and started from easy ones. 
+Finally, we added all detail features.
+
+How to approach the project
+1.	Set up the framework of the project
+2.	Figure out how to store all the information
+3.	
+Difficulties/interesting things
+1.	Hashmap or user object
+2.	The communication between client and server is trivial
+Trivial 
+What was learned?
+Results
+
