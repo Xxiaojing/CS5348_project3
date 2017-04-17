@@ -137,8 +137,8 @@ public class SocketClient
 						System.out.println(message);
 //						break;
 					}else{
-//						System.out.println("User reaches limit");
-						System.out.println("\t"+(i+1)+" "+message);
+						System.out.println("Delivery failed because number of users reach limit");
+//						System.out.println("\t"+(i+1)+" "+message);
 					}
 				}				
 			}
