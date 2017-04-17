@@ -7,14 +7,16 @@ import java.net.*;
 
 public class SocketClient
 {
-	Socket socket 		= null;
-	static PrintWriter out 	= null;
-	BufferedReader in 	= null;
-	Scanner sc 			= new Scanner(System.in);
-	final static int MAX_LENGTH = 10;
-	String recipient_name;
+	Socket socket 					= null;
+	static PrintWriter out 			= null;
+	static BufferedReader in 		= null;
+	static Scanner sc 				= new Scanner(System.in);
+	final static int MAX_LENGTH 	= 80;
+	static String recipient_name;		
 	public void communicate()
 	{
+		
+		// Login State
 		String name= "";
 		System.out.print("Enter your name : ");		// Enter the name 
 		while(true){			
@@ -28,12 +30,14 @@ public class SocketClient
 			}else if (status.equals("INVALID")){
 				System.out.print("User name is connected, enter a new name: ");		// Existing user, enter again
 			}else if (status.equals("FULL")){
-				System.out.print("Number of user reached limit, please login with an existing name: ");
+				System.out.print("Number of user reached limit, please login with an existing name: "); 
 			}else{
 				break;
 			}
 		}
+		// ---------------------------------------------------------------------------------------------------------
 		
+		// Menu Choice
 		String choice ="";		
 		outerloop:
 		while(true){
@@ -55,17 +59,14 @@ public class SocketClient
 				case "3":
 					sendData(choice);
 					displayInfo(choice);
-//					System.out.println(readServer());
 					break innerloop;
 				case "4":
 					sendData(choice);
 					displayInfo(choice);
-//					System.out.println(readServer());
 					break innerloop;	
 				case "5":
 					sendData(choice);
 					displayInfo(choice);
-//					System.out.println(readServer());
 					break innerloop;
 				case "6":
 					System.out.println("Your Messages:");
@@ -74,13 +75,13 @@ public class SocketClient
 					break innerloop;
 				case "7":
 					sendData(choice);
-//					out.println(choice);
 					break outerloop;
 				default:
 					System.out.print("Invalid choice (only 1~7), Enter Your Choice: ");
 				}	
 			}
 		}
+		// -------------------------------------------------------------------------------
 		sc.close();
 	}
 	
@@ -94,7 +95,7 @@ public class SocketClient
 		}
 	}
 	
-	// Read a single line from Server
+	// Read a single message from Server
 	public String readServer(){
 		try {
 			String st = in.readLine();
@@ -105,10 +106,13 @@ public class SocketClient
 		}	
 
 	}
+	
+	// Send a single message to Server
 	public static void sendServer(String stt){
 //		System.out.println("Out data: "+stt);
 		out.println(stt);
 	}
+	
 	// Read multiple lines from Server and print out formatted string
 	public void displayInfo(String choice){
 		String message;	
@@ -116,14 +120,12 @@ public class SocketClient
 		int n = Integer.parseInt(choice);
 		
 		while(true){
-//			System.out.println("I intend to read message");
 			message = readServer();
-//			System.out.println("I just read message: "+message);
 			if (message.equals("stop"))
 				break;
 			else{
 				if (n == 1 || n == 2){
-					System.out.println("\t"+(i+1)+". "+message);
+					System.out.println("\t"+(i+1)+". "+message);								// Print out Users
 				}else if (n == 6){
 					if (message.equals("empty")){
 						System.out.println("Empty Inbox");
@@ -133,34 +135,23 @@ public class SocketClient
 						String name 	= message;
 						String date 	= readServer();
 						String inbox	= readServer();
-						System.out.println("\t"+(i+1)+". From "+name+", "+date+", "+inbox);
+						System.out.println("\t"+(i+1)+". From "+name+", "+date+", "+inbox);		// Print out Messages
 						
 					}				
 				}else{	// 3,4,5
 					if (message.equals("OK")){
-//						System.out.println("Message posted to ");
-						status_OK(choice);
-						
-//					}else if (message.equals("FAIL")){
-//						newMethod(choice);
+						status_OK(choice);					
 					}else if (message.equals("FULL")){
 						status_FULL(choice);
 					}
-//					if (!message.equals("FULL")){	// OK or FAIL
-//						System.out.println(message);
-////						break;
-//					}else{
-//						System.out.println("Delivery failed because number of users reach limit");
-////						System.out.println("\t"+(i+1)+" "+message);
-//					}
 				}				
 			}
 				
 			i++;
 		}	
 	}
-	// Message: OK, FAIL, FULL
-	// Choice: 3,4,5
+	
+	// Handle status OK
 	public void status_OK(String choice){
 		if (choice.equals("3"))
 			System.out.println("Message posted to "+recipient_name);
@@ -170,6 +161,7 @@ public class SocketClient
 			System.out.println("Message posted to all known users");
 	}
 	
+	// Handle status FULL
 	public void status_FULL(String choice){
 		String type = readServer();
 		
@@ -207,7 +199,6 @@ public class SocketClient
 				}
 			}
 			message = choice+"\n"+name+st;
-//			System.out.println("Message sent: "+message);
 			sendServer(message);
 			
 		}else{
