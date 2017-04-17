@@ -8,7 +8,7 @@ import java.net.*;
 public class SocketClient
 {
 	Socket socket 		= null;
-	PrintWriter out 	= null;
+	static PrintWriter out 	= null;
 	BufferedReader in 	= null;
 	Scanner sc 			= new Scanner(System.in);
 	public void communicate()
@@ -17,15 +17,19 @@ public class SocketClient
 		System.out.print("Enter your name : ");		// Enter the name 
 		while(true){			
 			name 			= sc.nextLine();		// Get User's name
-			out.println(name);						// Send user name to Server to check
-			String valid 	= readServer();			// Receive validity string from Server
+			sendServer(name);						// Send user name to Server to check
+			String status 	= readServer();			// Receive status from Server
 			
 			// Check Validity of the User's name
-			if (valid.equals("valid")){
+			if (status.equals("valid")){
 				break;
+			}else if (status.equals("invalid")){
+				System.out.print("User name is connected, enter a new name: ");		// Existing user, enter again
+			}else if (status.equals("full")){
+				System.out.print("Number of user reached limit, please login with an existing name: ");
 			}else{
-				System.out.print("Existing user name, enter a new name: ");		// Existing user, enter again
-			}				
+				break;
+			}
 		}
 		
 		String choice ="";		
@@ -38,33 +42,37 @@ public class SocketClient
 				switch (choice){
 				case "1":
 					System.out.println("Known Users:");
-					sendServer(choice);
+					sendData(choice);
 					displayInfo(choice);
 					break innerloop;
 				case "2":
 					System.out.println("Connected Users:");
-					sendServer(choice);
+					sendData(choice);
 					displayInfo(choice);
 					break innerloop;
 				case "3":
-					sendServer(choice);
-					System.out.println(readServer());
+					sendData(choice);
+					displayInfo(choice);
+//					System.out.println(readServer());
 					break innerloop;
 				case "4":
-					sendServer(choice);
-					System.out.println(readServer());
+					sendData(choice);
+					displayInfo(choice);
+//					System.out.println(readServer());
 					break innerloop;	
 				case "5":
-					sendServer(choice);
-					System.out.println(readServer());
+					sendData(choice);
+					displayInfo(choice);
+//					System.out.println(readServer());
 					break innerloop;
 				case "6":
 					System.out.println("Your Messages:");
-					sendServer(choice);
+					sendData(choice);
 					displayInfo(choice);
 					break innerloop;
 				case "7":
-					out.println(choice);
+					sendData(choice);
+//					out.println(choice);
 					break outerloop;
 				default:
 					System.out.print("Invalid choice (only 1~7), Enter Your Choice: ");
@@ -72,6 +80,16 @@ public class SocketClient
 			}
 		}
 		sc.close();
+	}
+	
+	// Check STT of message and user limit
+	public boolean readStatus(){
+		String st = readServer();
+		if (st.equals("full")){
+			return false;
+		}else{
+			return true;
+		}
 	}
 	
 	// Read a single line from Server
@@ -83,46 +101,65 @@ public class SocketClient
 		} catch (NumberFormatException | IOException e) {
 			return null;
 		}	
+
 	}
-	
+	public static void sendServer(String stt){
+//		System.out.println("Out data: "+stt);
+		out.println(stt);
+	}
 	// Read multiple lines from Server and print out formatted string
 	public void displayInfo(String choice){
 		String message;	
 		int i = 0;
-		while((message = readServer())!= null){
-			if (!message.equals("stop")){
-				if (!choice.equals("6"))
-					System.out.println("\t"+(i+1)+". "+message);
-				else{
-					String name 	= message;
-					String date 	= readServer();
-					String inbox	= readServer();
-					System.out.println("\t"+(i+1)+". From "+name+", "+date+", "+inbox);
-				}				
-			}else{
+		int n = Integer.parseInt(choice);
+		while(true){
+//			System.out.println("I intend to read message");
+			message = readServer();
+//			System.out.println("I just read message: "+message);
+			if (message.equals("stop"))
 				break;
+			else{
+				if (n == 1 || n == 2){
+					System.out.println("\t"+(i+1)+". "+message);
+				}else if (n == 6){
+					if (message.equals("empty")){
+						System.out.println("Empty Inbox");
+						break;
+					}else{
+						String name 	= message;
+						String date 	= readServer();
+						String inbox	= readServer();
+						System.out.println("\t"+(i+1)+". From "+name+", "+date+", "+inbox);
+						
+					}				
+				}else{	// 3,4,5
+					if (!message.equals("full")){
+						System.out.println(message);
+//						break;
+					}else{
+//						System.out.println("User reaches limit");
+						System.out.println("\t"+(i+1)+" "+message);
+					}
+				}				
 			}
-			i++;
-		}	
-//		String message;	
-//		int i = 0;
-//		while((message = readServer())!= null){
+				
 //			if (!message.equals("stop")){
-//					System.out.println("\t"+(i+1)+". "+message);			
+//				// 1 2 6
+//
 //			}else{
 //				break;
 //			}
-//			i++;
-//		}
+			i++;
+		}	
 	}
 
 	// Send information to Server
-	public void sendServer(String choice){
+	public void sendData(String choice){
 		String name 	= "";
 		String message 	= "";
 		int n = Integer.parseInt(choice);
 		
-		if ( n != 1 && n != 2 && n != 6){
+		if ( n != 1 && n != 2 && n != 6 && n != 7){
 			if (n==3){
 				System.out.print("Enter recipient's name: ");
 				name = sc.nextLine()+"\n";
@@ -139,10 +176,10 @@ public class SocketClient
 			}
 			message = choice+"\n"+name+st;
 //			System.out.println("Message sent: "+message);
-			out.println(message);
+			sendServer(message);
 			
 		}else{
-			out.println(choice);
+			sendServer(choice);
 		}
 	}
 	
