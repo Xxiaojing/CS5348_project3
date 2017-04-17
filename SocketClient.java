@@ -11,6 +11,7 @@ public class SocketClient
 	static PrintWriter out 	= null;
 	BufferedReader in 	= null;
 	Scanner sc 			= new Scanner(System.in);
+	final static int MAX_LENGTH = 80;
 	public void communicate()
 	{
 		String name= "";
@@ -143,12 +144,6 @@ public class SocketClient
 				}				
 			}
 				
-//			if (!message.equals("stop")){
-//				// 1 2 6
-//
-//			}else{
-//				break;
-//			}
 			i++;
 		}	
 	}
@@ -168,7 +163,7 @@ public class SocketClient
 			String st ="";
 			while(true){
 				st = sc.nextLine();				
-				if (st.length() <= 80){
+				if (st.length() <= MAX_LENGTH){
 					break;
 				}else{
 					System.out.print("Your message is too long, enter a message again: ");
