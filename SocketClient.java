@@ -11,7 +11,7 @@ public class SocketClient
 	static PrintWriter out 	= null;
 	BufferedReader in 	= null;
 	Scanner sc 			= new Scanner(System.in);
-	final static int MAX_LENGTH = 80;
+	final static int MAX_LENGTH = 5;
 	public void communicate()
 	{
 		String name= "";
