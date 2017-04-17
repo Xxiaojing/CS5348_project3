@@ -1,367 +1,243 @@
+// By Linh Hoang, University of Texas at Dallas
+// April, 2017
+
 import java.io.*;
-import java.net.Socket;
-import java.text.*;
-import java.util.*;
-
-public class ClientWorker implements Runnable {
-
-    private Socket client;
-    private static ArrayList<User> userList;
-    private User newUser = new User();
-    private User coUser = new User();
-    private String status = "known";
-
-    BufferedReader in = null;
-    PrintWriter out = null;
-
-    ClientWorker(Socket client, ArrayList<User> userList)
-    {
-        this.client = client;
-        this.userList = userList;
-    }
-
-    public void run() {
-
-        String line;
-
-        try {
-
-            in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            out = new PrintWriter(client.getOutputStream(), true);
-
-        } catch (IOException e) {
-
-            System.out.println("in or out failed");
-            System.exit(-1);
-
-        }
-
-        newUser = userConnectionCheck(in, out, newUser, status);
-
-        try {
-
-            while ((line = in.readLine()) != null) {
-
-                if (line.equals("1")) {
-
-                    checkAllKnownUsers(line, null);
-
-                } else if (line.equals("2")) {
-
-                    checkAllConnectedUsers(line, null);
-
-                } else if (line.equals("3")) {
-
-                    String name = in.readLine();
-                    String message = in.readLine();
-                    String time = getTime();
-
-//                    check whether the person sending message to is a known user or not.
-//                    If he's unknown, add him to the user list.
-                    int index = checkAUserStatus(name);
-                    coUser = updateUser(index, name);
-
-                    String sendMessage = newUser.name + "\n" + time + "\n" + message;
-                    boolean saved = storeMessage(coUser, sendMessage, out);
-
-                    if (saved) {
-
-                        out.println("Message posted to " + name + "\n");
-
-                    } else {
-
-                        out.println("full");
-
-                    }
-
-                    System.out.println(newUser.name + " posts a message for " + coUser.name + ".");
-
-                } else if (line.equals("4")) {
-
-                    String message = in.readLine();
-                    checkAllConnectedUsers(line, message);
-
-                } else if (line.equals("5")) {
-
-                    String time = getTime();
-                    String message = in.readLine();
-                    checkAllKnownUsers(line, newUser.name + "\n" + time + "\n" + message);
-
-                } else if (line.equals("6")) {
-
-                    int i = 0;
-                    while (i < newUser.messageList.size()) {
-
-                        out.println(newUser.messageList.get(i));
-                        i++;
-
-                    }
-
-                    System.out.println(newUser.name + " gets messages.");
-
-                } else if (line.equals("7")) {
-
-                    newUser.setConnected(false);
-                    System.out.println(newUser.name + " exits.");
-                    exitClient();
-                    break;
-
-                }
-
-                out.println("stop");
-
-            }
-
-        } catch (IOException e) {
-            System.out.println("Read failed");
-            System.exit(-1);
-        }
-    }
-
-//        Check whether the name provide by the client is a valid name
-//    and get a valid name eventually and add the user to the user list.
-    public static synchronized User userConnectionCheck (BufferedReader in, PrintWriter out, User user, String status) {
-
-        int index;
-        String line = new String();
-
-        while (true) {
-
-            try {
-
-                line = in.readLine();
-
-            } catch (IOException e) {
-
-                System.out.println("Read failed");
-                System.exit(-1);
-
-            }
-
-            index = checkAUserStatus(line);
-            if (index == -1) {
-
-                out.println("valid");
-                user.setName(line);
-                addUser(user, out);
-                break;
-
-            } else {
-
-                if(!checkAUserConnection(index)) {
-
-                    out.println("valid");
-                    user = userList.get(index);
-                    break;
-
-                } else {
-
-                    out.println("invalid");
-
-                }
-
-            }
-
-        }
-
-        System.out.println(getTime() + ", " + "Connection by " + user.status + " user " + line);
-        user.setStatus(status);
-        user.setConnected(true);
-        return user;
-
-    }
-
-
-    public static String getTime(){
-        DateFormat df = new SimpleDateFormat("MM/dd/yy HH:mm a");
-        Date dateobj = new Date();
-        String time = df.format(dateobj);
-        return time;
-    }
-
-    public synchronized static void addUser(User currentUser, PrintWriter out) {
-
-        if (userList.size() < 5) {
-
-            userList.add(currentUser);
-
-        } else {
-
-            out.println("full");
-        }
-
-
-    }
-
-    public synchronized static boolean storeMessage(User user, String message, PrintWriter out) {
-
-        if (userList.size() < 5) {
-
-            user.setMessage(message);
-            return true;
-
-        } else {
-
-            out.println("full");
-            return false;
-
-        }
-
-    }
-
-    public static int checkAUserStatus(String name) {
-
-        int index = -1;
-
-        for(int i = 0; i < userList.size(); i++) {
-
-            if(userList.get(i).name.equals(name)) {
-                index = i;
-                break;
-            }
-
-        }
-
-        return index;
-
-    }
-
-    public static boolean checkAUserConnection(int index) {
-
-        boolean connection = false;
-
-        if (userList.get(index).connected) {
-
-            connection = true;
-
-        }
-
-        return connection;
-
-    }
-
-
-    public void checkAllKnownUsers (String choice, String message) {
-
-        int i = 0;
-        while(i < userList.size()) {
-
-            if (choice.equals("1")) {
-
-                out.println(userList.get(i).name);
-
-            } else {
-
-                if (!userList.get(i).name.equals(newUser.name)) {
-
-                    boolean saved = storeMessage(userList.get(i), message, out);
-                    if(!saved) {
-
-                        out.println(userList.get(i) + "'s message is full and can't be stored");
-
-                    }
-
-                }
-
-            }
-
-            i++;
-
-        }
-
-        if(choice.equals("1")) {
-
-            System.out.println(newUser.name + " displays all known users.");
-
-        } else {
-
-            System.out.println(newUser.name + " posts a message for all known users.");
-            out.println("Message posted to all known users.");
-
-        }
-
-
-    }
-
-    public void checkAllConnectedUsers(String choice, String message) {
-
-        int i = 0;
-        while(i < userList.size()) {
-
-            if(userList.get(i).connected) {
-
-                if(choice.equals("2")) {
-
-                    out.println(userList.get(i).name);
-
-                } else {
-
-                    if (!userList.get(i).name.equals(newUser.name)) {
-
-                        String time = getTime();
-                        String sendMessage = newUser.name + "\n" + time + "\n" + message;
-                        boolean saved = storeMessage(userList.get(i), sendMessage, out);
-                        if(!saved) {
-
-                            out.println(userList.get(i) + ".s message is full and can't be stored.");
-                            
-                        }
-
-                    }
-
-
-                }
-
-            }
-
-            i++;
-
-        }
-
-        if(choice.equals("2")) {
-
-            System.out.println(newUser.name + " displays all connected users.");
-
-        } else {
-
-            System.out.println(newUser.name + " posts a message for all currently connected users.");
-            out.println("Message posted to all currently connected users.");
-
-        }
-
-    }
-
-//    Check whether it's a new user, if it, add him to the user List, otherwise get the
-//    user from the user list.
-    public User updateUser (int index, String name) {
-
-        User user = new User();
-        if (index == -1) {
-
-            user.setName(name);
-            user.setStatus(status);
-            addUser(user, out);
-
-        } else {
-
-            user = userList.get(index);
-
-        }
-
-        return user;
-
-    }
-
-    public void exitClient() {
-        try
-        {
-            client.close();
-        }
-        catch (IOException e)
-        {
-            System.out.println("Close failed");
-            System.exit(-1);
-        }
-    }
-
+import java.util.Scanner;
+import java.net.*;
+
+public class SocketClient
+{
+	Socket socket 		= null;
+	PrintWriter out 	= null;
+	BufferedReader in 	= null;
+	Scanner sc 			= new Scanner(System.in);
+	public void communicate()
+	{
+		String name= "";
+		System.out.print("Enter your name : ");		// Enter the name 
+		while(true){			
+			name 			= sc.nextLine();		// Get User's name
+			out.println(name);						// Send user name to Server to check
+			String status 	= readServer();			// Receive status from Server
+			
+			// Check Validity of the User's name
+			if (status.equals("valid")){
+				break;
+			}else if (status.equals("invalid")){
+				System.out.print("User name is connected, enter a new name: ");		// Existing user, enter again
+			}else if (status.equals("full")){
+				System.out.print("Number of user reached limit, please login with an existing name: ");
+			}else{
+				break;
+			}
+		}
+		
+		String choice ="";		
+		outerloop:
+		while(true){
+			displayChoice();			// Display menu
+			innerloop:
+			while(true){
+				choice = sc.nextLine();	// Take the user's choice			
+				switch (choice){
+				case "1":
+					System.out.println("Known Users:");
+					sendServer(choice);
+					displayInfo(choice);
+					break innerloop;
+				case "2":
+					System.out.println("Connected Users:");
+					sendServer(choice);
+					displayInfo(choice);
+					break innerloop;
+				case "3":
+					sendServer(choice);
+					displayInfo(choice);
+//					System.out.println(readServer());
+					break innerloop;
+				case "4":
+					sendServer(choice);
+					displayInfo(choice);
+//					System.out.println(readServer());
+					break innerloop;	
+				case "5":
+					sendServer(choice);
+					System.out.println(readServer());
+					break innerloop;
+				case "6":
+					System.out.println("Your Messages:");
+					sendServer(choice);
+					displayInfo(choice);
+					break innerloop;
+				case "7":
+					sendServer(choice);
+//					out.println(choice);
+					break outerloop;
+				default:
+					System.out.print("Invalid choice (only 1~7), Enter Your Choice: ");
+				}	
+			}
+		}
+		sc.close();
+	}
+	
+	// Check STT of message and user limit
+	public boolean readStatus(){
+		String st = readServer();
+		if (st.equals("full")){
+			return false;
+		}else{
+			return true;
+		}
+	}
+	
+	// Read a single line from Server
+	public String readServer(){
+		try {
+			String st = in.readLine();
+			System.out.println("Incomming data: "+st);
+			return (st);
+		} catch (NumberFormatException | IOException e) {
+			return null;
+		}	
+	}
+	
+	// Read multiple lines from Server and print out formatted string
+	public void displayInfo(String choice){
+		String message;	
+		int i = 0;
+		int n = Integer.parseInt(choice);
+		while((message = readServer())!= null){
+			if (!message.equals("stop")){
+				// 1 2 6
+				if (n == 1 || n == 2){
+					System.out.println("\t"+(i+1)+". "+message);
+				}else if (n == 6){
+					if (message.equals("empty")){
+						System.out.println("Empty");
+						break;
+					}else{
+						String name 	= message;
+						String date 	= readServer();
+						String inbox	= readServer();
+						System.out.println("\t"+(i+1)+". From "+name+", "+date+", "+inbox);
+					}				
+				}else{
+					if (!message.equals("full")){
+						System.out.println(readServer());
+					}else{
+						System.out.println("\t"+(i+1)+" "+message);
+					}
+				}
+				// 3 4 5
+//				if (n!=6)
+//					System.out.println("\t"+(i+1)+". "+message);
+//				else{
+//					if (message.equals("empty")){
+//						System.out.println("Empty");
+//						break;
+//					}else{
+//						String name 	= message;
+//						String date 	= readServer();
+//						String inbox	= readServer();
+//						System.out.println("\t"+(i+1)+". From "+name+", "+date+", "+inbox);
+//					}
+//				}	
+//				if (n!=6)
+//					System.out.println("\t"+(i+1)+". "+message);
+//				else{
+//					if (message.equals("empty")){
+//						System.out.println("Empty");
+//						break;
+//					}else{
+//						String name 	= message;
+//						String date 	= readServer();
+//						String inbox	= readServer();
+//						System.out.println("\t"+(i+1)+". From "+name+", "+date+", "+inbox);
+//					}
+//				}				
+			}else{
+				break;
+			}
+			i++;
+		}	
+	}
+
+	// Send information to Server
+	public void sendServer(String choice){
+		String name 	= "";
+		String message 	= "";
+		int n = Integer.parseInt(choice);
+		
+		if ( n != 1 && n != 2 && n != 6 && n != 7){
+			if (n==3){
+				System.out.print("Enter recipient's name: ");
+				name = sc.nextLine()+"\n";
+			}
+			System.out.print("Enter a message: ");
+			String st ="";
+			while(true){
+				st = sc.nextLine();				
+				if (st.length() <= 80){
+					break;
+				}else{
+					System.out.print("Your message is too long, enter a message again: ");
+				}
+			}
+			message = choice+"\n"+name+st;
+//			System.out.println("Message sent: "+message);
+			out.println(message);
+			
+		}else{
+			out.println(choice);
+		}
+	}
+	
+	
+	public void displayChoice(){
+		System.out.print("\n\n1. Display the names of all known users.\n"
+				+ "2. Display the names of all currently connected users.\n"
+				+ "3. Send a text message to a particular user.\n"
+				+ "4. Send a text message to all currently connected users.\n"
+				+ "5. Send a text message to all known users.\n"
+				+ "6. Get my messages.\n"
+				+ "7. Exit.\n"
+				+ "Enter your choice: ");
+	}
+	public void listenSocket(String host, int port)
+	{
+		//Create socket connection
+		try
+		{
+			socket = new Socket(host, port);
+			out = new PrintWriter(socket.getOutputStream(), true);
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		} 
+		catch (UnknownHostException e) 
+		{
+			System.out.println("Unknown host");
+			System.exit(1);
+		} 
+		catch (IOException e) 
+		{
+			System.out.println("No I/O");
+			System.exit(1);
+		}
+	}
+
+	public static void main(String[] args)
+	{
+		if (args.length != 2)
+		{
+			System.out.println("Usage:  client hostname port");
+			System.exit(1);
+		}
+
+		SocketClient client = new SocketClient();
+
+		String host = args[0];
+		int port = Integer.valueOf(args[1]);
+		client.listenSocket(host, port);
+		client.communicate();
+	}
 }
