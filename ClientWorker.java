@@ -9,7 +9,8 @@ public class ClientWorker implements Runnable {
     private static ArrayList<User> userList; //Create a new User arraylist
     private User newUser = new User(); //Create a new customer referencing the user corresponding to the current client.
     private String status = "known"; // Create a variable to represent the client is a known client.
-
+    final static int MAX_USER = 2;
+    final static int MAX_MESS = 2;
     BufferedReader in = null;
     PrintWriter out = null;
 
@@ -47,9 +48,11 @@ public class ClientWorker implements Runnable {
 
                     checkAllKnownUsers(line, null);
 
+
                 } else if (line.equals("2")) {
 
                     checkAllConnectedUsers(line, null);
+
 
                 } else if (line.equals("3")) {
 
@@ -63,16 +66,20 @@ public class ClientWorker implements Runnable {
                     int index = checkAUserStatus(name);
                     updateUser(index, name, sendMessage);
 
+
                 } else if (line.equals("4")) {
 
                     String message = in.readLine();
                     checkAllConnectedUsers(line, message);
 
+
                 } else if (line.equals("5")) {
 
-                    String time = getTime();
+//                    String time = getTime();
                     String message = in.readLine();
-                    checkAllKnownUsers(line, newUser.name + "\n" + time + "\n" + message);
+                    checkAllKnownUsers(line, message);
+
+//                    checkAllKnownUsers(line, newUser.name + "\n" + time + "\n" + message);
 
                 } else if (line.equals("6")) {
 
@@ -102,7 +109,7 @@ public class ClientWorker implements Runnable {
                     break;
 
                 }
-
+                
                 out.println("stop");
 
             }
@@ -143,12 +150,11 @@ public class ClientWorker implements Runnable {
                 user.setName(line);
                 added = addUser(user, out);
                 if (added) {
-
                     out.println("valid");
-
+                    break;
                 }
 
-                break;
+                
 
             } else {
 
@@ -188,7 +194,7 @@ public class ClientWorker implements Runnable {
     public synchronized static boolean addUser(User currentUser, PrintWriter out) {
 
         boolean added = false;
-        if (userList.size() < 100) {
+        if (userList.size() < MAX_USER) {
 
             userList.add(currentUser);
             added = true;
@@ -206,14 +212,13 @@ public class ClientWorker implements Runnable {
 //    if it is full, send a message back to the client
     public synchronized static boolean storeMessage(User user, String message, PrintWriter out) {
 
-        if (user.messageList.size() < 10) {
+        if (user.messageList.size() < MAX_MESS) {
 
             user.setMessage(message);
             return true;
 
         } else {
 
-            out.println("full");
             return false;
 
         }
@@ -257,28 +262,36 @@ public class ClientWorker implements Runnable {
 //    Check userList to find all known users. Then if the client chose "1", just print out all the known user names
 //    If the client chose "5", save a message to all known users.
     public void checkAllKnownUsers (String choice, String message) {
-
         int i = 0;
+        boolean status = true;
         while(i < userList.size()) {
 
-            if (choice.equals("1")) {
+//            if(userList.get(i).connected) {
 
-                out.println(userList.get(i).name);
+                if(choice.equals("1")) {
 
-            } else if (choice.equals("5")){
+                    out.println(userList.get(i).name);
 
-                if (!userList.get(i).name.equals(newUser.name)) {
+                } else if (choice.equals("5")){
 
-                    boolean saved = storeMessage(userList.get(i), message, out);
-                    if(!saved) {
+                    if (!userList.get(i).name.equals(newUser.name)) {
 
-                        out.println(userList.get(i) + "'s message is full and can't be stored");
+                        String time = getTime();
+                        String sendMessage = newUser.name + "\n" + time + "\n" + message;
+                        boolean saved = storeMessage(userList.get(i), sendMessage, out);
+                        if(!saved) {
+
+                            out.println(userList.get(i).name + "'s message is full and can't be stored.");
+                            status = false;
+
+                        }
 
                     }
 
+
                 }
 
-            }
+//            }
 
             i++;
 
@@ -289,12 +302,16 @@ public class ClientWorker implements Runnable {
             System.out.println(getTime() + ", " + newUser.name + " displays all known users.");
 
         } else if (choice.equals("5")){
+        	if (status){
+                System.out.println(getTime() + ", " + newUser.name + " posts a message for all currently known users.");
+                out.println("Message posted to all currently known users.");	
+        	}else{
+                System.out.println(getTime() + ", " + newUser.name + " posts a message for SOME currently known users.");
+                out.println("Message posted to SOME currently known users.");    		
+        	}
 
-            System.out.println(getTime() + ", " + newUser.name + " posts a message for all known users.");
-            out.println("Message posted to all known users.");
 
         }
-
 
     }
 
@@ -303,6 +320,7 @@ public class ClientWorker implements Runnable {
     public void checkAllConnectedUsers(String choice, String message) {
 
         int i = 0;
+        boolean status = true;
         while(i < userList.size()) {
 
             if(userList.get(i).connected) {
@@ -320,7 +338,8 @@ public class ClientWorker implements Runnable {
                         boolean saved = storeMessage(userList.get(i), sendMessage, out);
                         if(!saved) {
 
-                            out.println(userList.get(i) + "'s message is full and can't be stored.");
+                            out.println(userList.get(i).name + "'s message is full and can't be stored.");
+                            status = false;
 
                         }
 
@@ -340,9 +359,14 @@ public class ClientWorker implements Runnable {
             System.out.println(getTime() + ", " + newUser.name + " displays all connected users.");
 
         } else if (choice.equals("4")){
+        	if (status){
+                System.out.println(getTime() + ", " + newUser.name + " posts a message for all currently connected users.");
+                out.println("Message posted to all currently connected users.");	
+        	}else{
+                System.out.println(getTime() + ", " + newUser.name + " posts a message for SOME currently connected users.");
+                out.println("Message posted to SOME currently connected users.");    		
+        	}
 
-            System.out.println(getTime() + ", " + newUser.name + " posts a message for all currently connected users.");
-            out.println("Message posted to all currently connected users.");
 
         }
 
@@ -355,7 +379,7 @@ public class ClientWorker implements Runnable {
         User user = new User();
         if (index == -1) {
 
-            boolean added = false;
+            boolean added;
             user.setName(name);
             user.setStatus(status);
             added = addUser(user, out);
