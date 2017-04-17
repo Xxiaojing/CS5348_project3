@@ -11,7 +11,8 @@ public class SocketClient
 	static PrintWriter out 	= null;
 	BufferedReader in 	= null;
 	Scanner sc 			= new Scanner(System.in);
-	final static int MAX_LENGTH = 5;
+	final static int MAX_LENGTH = 10;
+	String recipient_name;
 	public void communicate()
 	{
 		String name= "";
@@ -22,11 +23,11 @@ public class SocketClient
 			String status 	= readServer();			// Receive status from Server
 			
 			// Check Validity of the User's name
-			if (status.equals("valid")){
+			if (status.equals("VALID")){
 				break;
-			}else if (status.equals("invalid")){
+			}else if (status.equals("INVALID")){
 				System.out.print("User name is connected, enter a new name: ");		// Existing user, enter again
-			}else if (status.equals("full")){
+			}else if (status.equals("FULL")){
 				System.out.print("Number of user reached limit, please login with an existing name: ");
 			}else{
 				break;
@@ -86,7 +87,7 @@ public class SocketClient
 	// Check STT of message and user limit
 	public boolean readStatus(){
 		String st = readServer();
-		if (st.equals("full")){
+		if (st.equals("FULL")){
 			return false;
 		}else{
 			return true;
@@ -113,6 +114,7 @@ public class SocketClient
 		String message;	
 		int i = 0;
 		int n = Integer.parseInt(choice);
+		
 		while(true){
 //			System.out.println("I intend to read message");
 			message = readServer();
@@ -125,6 +127,7 @@ public class SocketClient
 				}else if (n == 6){
 					if (message.equals("empty")){
 						System.out.println("Empty Inbox");
+						readServer();
 						break;
 					}else{
 						String name 	= message;
@@ -134,18 +137,51 @@ public class SocketClient
 						
 					}				
 				}else{	// 3,4,5
-					if (!message.equals("full")){
-						System.out.println(message);
-//						break;
-					}else{
-						System.out.println("Delivery failed because number of users reach limit");
-//						System.out.println("\t"+(i+1)+" "+message);
+					if (message.equals("OK")){
+//						System.out.println("Message posted to ");
+						status_OK(choice);
+						
+//					}else if (message.equals("FAIL")){
+//						newMethod(choice);
+					}else if (message.equals("FULL")){
+						status_FULL(choice);
 					}
+//					if (!message.equals("FULL")){	// OK or FAIL
+//						System.out.println(message);
+////						break;
+//					}else{
+//						System.out.println("Delivery failed because number of users reach limit");
+////						System.out.println("\t"+(i+1)+" "+message);
+//					}
 				}				
 			}
 				
 			i++;
 		}	
+	}
+	// Message: OK, FAIL, FULL
+	// Choice: 3,4,5
+	public void status_OK(String choice){
+		if (choice.equals("3"))
+			System.out.println("Message posted to "+recipient_name);
+		if (choice.equals("4"))
+			System.out.println("Message posted to all connected users");
+		if (choice.equals("5"))
+			System.out.println("Message posted to all known users");
+	}
+	
+	public void status_FULL(String choice){
+		String type = readServer();
+		
+		if (type.equals("M")){
+			String user_name = readServer();
+			System.out.println("Message posted to SOME users");
+			System.out.println("Delivery to "+user_name+" fail because user's inbox is FULL");
+		}
+			
+		if (type.equals("U")){
+			System.out.println("Delivery to fail because number of user reaches limit");
+		}
 	}
 
 	// Send information to Server
@@ -158,6 +194,7 @@ public class SocketClient
 			if (n==3){
 				System.out.print("Enter recipient's name: ");
 				name = sc.nextLine()+"\n";
+				recipient_name = name;
 			}
 			System.out.print("Enter a message: ");
 			String st ="";
