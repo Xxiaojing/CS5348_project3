@@ -35,7 +35,9 @@ public class Client
                 } else if(line.equals("full")) {
 
                     System.out.println("The server is full and can't take client any more.");
-                    System.exit(-1);
+//                    System.exit(-1);
+                    in.close();
+                    out.close();
 
                 } else {
 
@@ -83,9 +85,11 @@ public class Client
 
                                 if(line.equals("full")) {
                                     System.out.println("The server is full, and the user talking to cannot be connected.");
-                                    break;
+                                } else {
+
+                                    System.out.println(line);
+
                                 }
-                                System.out.println(line);
 
                             } else if (choice.equals("6")) {
 

@@ -8,7 +8,6 @@ public class ClientWorker implements Runnable {
     private Socket client;
     private static ArrayList<User> userList; //Create a new User arraylist
     private User newUser = new User(); //Create a new customer referencing the user corresponding to the current client.
-    private User coUser = new User(); // Create a customer referencing the user corresponding to the client that current client is talking to.
     private String status = "known"; // Create a variable to represent the client is a known client.
 
     BufferedReader in = null;
@@ -104,6 +103,10 @@ public class ClientWorker implements Runnable {
 
                 }
 
+                int i = 0;
+                while (i < userList.size()) {
+                    System.out.println("name is " + userList.get(i++).name);
+                }
                 out.println("stop");
 
             }
@@ -112,6 +115,7 @@ public class ClientWorker implements Runnable {
 
         } catch (IOException e) {
             System.out.println("Read failed");
+            newUser.connected = false;
             System.exit(-1);
         }
     }
@@ -213,7 +217,6 @@ public class ClientWorker implements Runnable {
 
         } else {
 
-            out.println("full");
             return false;
 
         }
@@ -355,7 +358,7 @@ public class ClientWorker implements Runnable {
         User user = new User();
         if (index == -1) {
 
-            boolean added = false;
+            boolean added;
             user.setName(name);
             user.setStatus(status);
             added = addUser(user, out);
@@ -384,11 +387,11 @@ public class ClientWorker implements Runnable {
 
         } else {
 
-            out.println(coUser.name + "'s message is full and can't be saved");
+            out.println(user.name + "'s message is full and can't be saved");
 
         }
 
-        System.out.println(getTime() + ", " + newUser.name + " posts a message for " + coUser.name + ".");
+        System.out.println(getTime() + ", " + newUser.name + " posts a message for " + user.name + ".");
     }
 
 //    close the client socket.
