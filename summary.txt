@@ -14,9 +14,9 @@ Approach
 
 How to approach the project
 1.   List down all messages in communication between server and client.
-
+In this step, we set up the basic framework for the project based on the example given so that the server accept clients and get connection to clients and communicate between each other. The server will run on a port which is got from the command line. Then the server will listen on that port and wait for connection from client. Client will get the hostname and port the server is running on from the command line. When a client makes a connection to the server, the server will use a while loop to create a ClientWorker thread to communicate with the client and the server will continue waiting for a new client to get connection. The client will send his name to the server and server will send some message back to the client.
 2.	Figure out how to store all the information, which data structure should use
-
+We discussed about the project requirements and what data structure we should use to store messages for clients. 
 3.	Simluate a simple server where messages are enter my user, build a client. 
 4.   Build complete server and test with many clients.
 5.   Optimization
