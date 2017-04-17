@@ -119,7 +119,8 @@ public class ClientWorker implements Runnable {
         } catch (IOException e) {
             System.out.println("Read failed");
             newUser.connected = false;
-            System.exit(-1);
+
+//            System.exit(-1);
         }
     }
 
@@ -405,14 +406,16 @@ public class ClientWorker implements Runnable {
         if (saved) {
 
             out.println("Message posted to " + user.name);
+            System.out.println(getTime() + ", " + newUser.name + " posts a message for " + user.name + ".");
 
         } else {
 
             out.println(user.name + "'s message is full and can't be saved");
+            System.out.println(getTime() + ", " + newUser.name + " failed to post a message for " + user.name + " because of user's message limit.");
 
         }
 
-        System.out.println(getTime() + ", " + newUser.name + " posts a message for " + user.name + ".");
+//        System.out.println(getTime() + ", " + newUser.name + " posts a message for " + user.name + ".");
     }
 
 //    close the client socket.
