@@ -10,6 +10,11 @@ Second, we discussed about the project requirements and what data structure we s
 Third, we added the basic menu functions into our code and started from easy ones. 
 Finally, we added all detail features.
 
+
+Distribution:
+Xiao: Build Server - Test Client
+Linh: Build Client - Test Server
+
 Approach
 
 How to approach the project
@@ -34,7 +39,7 @@ Difficulties/interesting things
 What was learned?
 1.  Working collaborative with partners
 2.  Using github to work.
-3.  
+3.  Using syncronized method in Java
 
 Results
 
